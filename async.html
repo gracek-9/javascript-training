@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <section>
+        <h1>Cats</h1>
+        <div id="output">
+
+        </div>
+    </section>
+    <section>
+        <h1>Add cat</h1>
+        <form id="addCat">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="age">Age:</label>
+            <input type="number" id="age" name="age" required>
+
+            <label for="breed">Breed:</label>
+            <input type="text" id="breed" name="breed" required>
+
+            <button type="submit">Submit</button>
+        </form>
+    </section>
+</body>
+<script>
+    // fetch("http://localhost:8080/cats")
+    //     .then(response => {
+    async function fetchCats() {
+        try {
+            const response = await fetch("http://localhost:8080/cats");
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok' + response.statusText);
+            }
+            const data = await response.json();
+            console.log('Success:', data);
+            const outputDiv = document.getElementById('output');
+            data.forEach(cat => {
+                const catDiv = document.createElement('div');
+                const catName = document.createElement('h2');
+                catName.textContent = cat.name;
+                const catAge = document.createElement('p');
+                const catBreed = document.createElement('p');
+                catAge.textContent = `Age: ${cat.age}`;
+                catBreed.textContent = `Breed: ${cat.breed}`;
+                const catDeleteButton = document.createElement('button');
+                catDeleteButton.textContent = 'Delete';
+
+                catDeleteButton.addEventListener('click', async () => {
+                    try {
+                        const response = await fetch(`http://localhost:8080/cats/${cat.id}`, {
+                            method: 'DELETE'
+                        });
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok ' + response.statusText)
+                        }
+                        outputDiv.removeChild(catDiv);
+                    } catch (error) {
+                        console.error('Error: ', error);
+                    }
+                })
+
+                catDiv.appendChild(catName);
+                catDiv.appendChild(catAge);
+                catDiv.appendChild(catBreed);
+                catDiv.appendChild(catDeleteButton);
+                outputDiv.appendChild(catDiv);
+            });
+
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+    fetchCats();
+    document.getElementById('addCat').addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        const name = this.name.value;
+        const age = this.age.value;
+        const breed = this.breed.value;
+
+        fetch("http://localhost:8080/cats", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name, age, breed })
+        }).then(response => {
+            if (response.status !== 201) {
+                throw new Error('Failed to add cat: ' + response.statusText);
+            } else {
+                return response.json();
+            }
+        })
+            .then(data => {
+                console.log('Success:', data);
+                this.reset();
+                this.name.focus();
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    });
+</script>
+<script>
+    // const fetchCats = function (){
+    //     return new Promise((resolve, reject) => {
+    //         const xhr = new XMLHttpRequest();
+    //         xhr.open("GET", "http://localhost:8080/cats");
+    //         xhr.onload = function () {
+    //             if (xhr.status === 200) {
+    //                 const cats = JSON.parse(xhr.responseText);
+    //                 resolve(cats);
+    //             } else {
+    //                 reject(new Error('Error fetching cats: ' + xhr.statusText));
+    //             }
+    //         };
+    //         xhr.onerror = function () {
+    //             reject(new Error('Network error'));
+    //         };
+    //         xhr.send();
+    //     })
+    // }
+</script>
+
+</html>
