@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="output">
+
+    </div>
+</body>
+<script>
+  fetch("https://raw.githubusercontent.com/JHarry444/RM-2/refs/heads/main/js/11-fetch/cats.json")
+     .then(response => { 
+        if (!response.ok){ 
+            throw new Error('Network response was not ok' + response.statusText);
+     }
+     return response.json();
+    })
+    .then(data => {
+        console.log('Success:', data);
+        const outputDiv = document.getElementById('output');
+        data.forEach(cat => {
+            const catDiv = document.createElement('div');
+            const catName = document.createElement('h2');
+            catName.textContent = cat.name;
+            const catAge = document.createElement('p');
+            const catBreed = document.createElement('p');
+            catAge.textContent = `Age: ${cat.age}`;
+            catBreed.textContent = `Breed: ${cat.breed}`;
+            catDiv.appendChild(catName);
+            catDiv.appendChild(catAge);
+            catDiv.appendChild(catBreed);
+            outputDiv.appendChild(catDiv);
+        });
+
+    }).catch((error) => {
+        console.error('Error:', error);
+    });
+</script>
+</html>
